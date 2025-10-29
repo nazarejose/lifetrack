@@ -6,11 +6,13 @@ import { UsersModule } from '../user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { join } from 'path';
+import { HabitsModule } from '../habits/habits.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
+    HabitsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
