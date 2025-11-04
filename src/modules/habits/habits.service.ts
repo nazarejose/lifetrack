@@ -29,8 +29,14 @@ export class HabitsService {
     }
   }
 
-  findAll() {
-    return `This action returns all habits`;
+  async findAll(userId: string) {
+    const habits = await this.prisma.habit.findMany({
+      where: { 
+        userId
+      }
+    })
+
+    return habits
   }
 
   findOne(id: number) {

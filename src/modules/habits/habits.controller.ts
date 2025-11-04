@@ -16,8 +16,9 @@ export class HabitsController {
   }
 
   @Get()
-  findAll() {
-    return this.habitsService.findAll();
+  findAll(@Req() req: any) {
+    const userId = req.user.id;
+    return this.habitsService.findAll(userId);
   }
 
   @Get(':id')
