@@ -22,8 +22,9 @@ export class HabitsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.habitsService.findOne(+id);
+  findOne(@Req() req: any, @Param('id') id: string) {
+    const userId = req.user.id;
+    return this.habitsService.findOne(id, userId);
   }
 
   @Patch(':id')

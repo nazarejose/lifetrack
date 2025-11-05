@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -39,8 +39,18 @@ export class HabitsService {
     return habits
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} habit`;
+  async findOne(id: string, userId: string) {
+    const habit = await this.prisma.habit.findFirst({
+      where: {
+        userId,
+        id
+      }
+    })
+
+    if(!habit){
+      throw new HttpException("Hábito não encontrado", HttpStatus.NOT_FOUND);
+    }
+    return habit
   }
 
   update(id: number, updateHabitDto: UpdateHabitDto) {
