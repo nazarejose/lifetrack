@@ -57,7 +57,16 @@ export class HabitsService {
     return `This action updates a #${id} habit`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} habit`;
+  async remove(id: string, userId: string) {
+    
+   const habit = await this.findOne(id, userId)
+
+   const deleteHabit = await this.prisma.habit.delete({
+    where: {
+      id: habit.id
+    }
+   })
+
+   return deleteHabit
   }
 }
