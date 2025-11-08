@@ -53,12 +53,22 @@ export class HabitsService {
     return habit
   }
 
-  update(id: number, updateHabitDto: UpdateHabitDto) {
-    return `This action updates a #${id} habit`;
+  async update(id: string, updateHabitDto: UpdateHabitDto, userId: string) {
+    const habit = await this.findOne(id, userId)
+
+    const patchHabit = await this.prisma.habit.update({
+      where:{
+        id: habit.id
+      },
+      data: updateHabitDto
+    })
+
+    return patchHabit
+
   }
 
   async remove(id: string, userId: string) {
-    
+
    const habit = await this.findOne(id, userId)
 
    const deleteHabit = await this.prisma.habit.delete({

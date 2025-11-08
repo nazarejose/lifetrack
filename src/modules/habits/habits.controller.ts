@@ -22,18 +22,19 @@ export class HabitsController {
   }
 
   @Get(':id')
-  findOne(@Req() req: any, @Param('id') id: string) {
+  findOne(@Param('id') id: string, @Req() req: any,) {
     const userId = req.user.id;
     return this.habitsService.findOne(id, userId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateHabitDto: UpdateHabitDto) {
-    return this.habitsService.update(+id, updateHabitDto);
+  update(@Param('id') id: string, @Body() updateHabitDto: UpdateHabitDto, @Req() req: any) {
+    const userId = req.user.id;
+    return this.habitsService.update(id, updateHabitDto, userId);
   }
 
   @Delete(':id')
-  remove(@Req() req: any, @Param('id') id: string) {
+  remove(@Param('id') id: string, @Req() req: any, ) {
     const userId = req.user.id;
     return this.habitsService.remove(id, userId);
   }
