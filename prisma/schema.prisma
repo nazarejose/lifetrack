@@ -1,6 +1,5 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -16,20 +15,38 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  habits    Habit[]
+  habits       Habit[]
+  transactions Transaction[]
 
   @@map("user")
 }
 
 model Habit {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
   frequency   String
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
 
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   @@map("habits")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Transaction {
+  id              String          @id @default(uuid())
+  description     String
+  amount          Int
+  transactionType TransactionType
+  date            DateTime
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
 }
