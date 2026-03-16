@@ -1,0 +1,13 @@
+# Dependências de todas as pastas
+node_modules/
+dist/
+.next/
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.development.local
+
+# Logs
+npm-debug.log*
+.DS_Store
