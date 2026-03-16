@@ -14,6 +14,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
  
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
@@ -21,5 +22,6 @@ async function bootstrap() {
   }));
 
    await app.listen(process.env.PORT ?? 3000);
+   console.log('🚀 Backend do LifeTrack rodando em: http://localhost:5002')
 }
 bootstrap();
