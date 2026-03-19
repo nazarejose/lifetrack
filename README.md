@@ -81,7 +81,7 @@ A API segue o padrão modular do NestJS:
 
 - [x] CRUD de Transações com filtro de usuário  
 - [x] Migração para Prisma 7 com Driver Adapter  
-- [ ] Implementação do endpoint de Resumo Financeiro (Saldo Total)  
-- [ ] Desenvolvimento do módulo de Hábitos (Habit Tracking)  
-- [ ] Integração com o Frontend em Next.js  
+- [x] Implementação do endpoint de Resumo Financeiro (Saldo Total)  
+- [x] Desenvolvimento do módulo de Hábitos (Habit Tracking)  
+- [x] Integração com o Frontend em Next.js  
 - [ ] Implementação de Gráficos de Evolução
