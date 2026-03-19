@@ -16,10 +16,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
+import { User } from "@/lib/types";
 
 const mainNavigation = [
   { name: "Overview", href: "/dashboard", icon: LayoutGrid },
@@ -37,7 +38,11 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const user = api.getUser();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    setUser(api.getUser());
+  }, []);
 
   const handleLogout = () => {
     api.logout();
@@ -156,11 +161,11 @@ export function Sidebar() {
         <div className="border-t border-[#1e293b] p-3">
           <div className="flex items-center gap-3 px-2 py-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-              {user?.name?.charAt(0) || "A"}S
+              {user?.name?.charAt(0) || ""}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
-                {user?.name || "Alex Silva"}
+                {user?.name || ""}
               </p>
               <Badge
                 variant="secondary"

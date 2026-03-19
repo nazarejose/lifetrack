@@ -1,4 +1,4 @@
-import type { User, Transaction, TransactionSummary, Habit, AuthResponse, TransactionType, Frequency } from './types';
+import type { User, Transaction, TransactionSummary, Habit, AuthApiResponse, TransactionType, Frequency } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
 
@@ -36,23 +36,23 @@ class ApiClient {
   }
 
   // Auth
-  async login(email: string, password: string): Promise<AuthResponse> {
-    const data = await this.request<AuthResponse>('/auth/login', {
+  async login(email: string, password: string): Promise<AuthApiResponse> {
+    const data = await this.request<AuthApiResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
     localStorage.setItem('token', data.accessToken);
-    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('user', JSON.stringify(data.data));
     return data;
   }
 
-  async register(name: string, email: string, password: string): Promise<AuthResponse> {
-    const data = await this.request<AuthResponse>('/auth/register', {
+  async register(name: string, email: string, password: string): Promise<AuthApiResponse> {
+    const data = await this.request<AuthApiResponse>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     });
     localStorage.setItem('token', data.accessToken);
-    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('user', JSON.stringify(data.data));
     return data;
   }
 
@@ -93,7 +93,12 @@ class ApiClient {
   }): Promise<Transaction> {
     return this.request<Transaction>('/transactions', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        description: data.description,
+        amount: data.amount,
+        transactionType: data.type,
+        date: new Date().toISOString(),
+      }),
     });
   }
 

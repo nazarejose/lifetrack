@@ -11,15 +11,15 @@ export interface Transaction {
   id: string;
   description: string;
   amount: number;
-  type: TransactionType;
+  transactionType: TransactionType;
   category: string;
   date: string;
 }
 
 export interface TransactionSummary {
   balance: number;
-  incomes: number;
-  expenses: number;
+  totalIncome: number;
+  totalExpense: number;
 }
 
 export interface Habit {
@@ -43,7 +43,8 @@ export interface Goal {
   status: 'on-track' | 'at-risk' | 'completed' | 'behind';
 }
 
-export interface AuthResponse {
+export interface AuthApiResponse {
   accessToken: string;
-  user: User;
+  expiresIn: string;
+  data: User;
 }

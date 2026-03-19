@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { User } from "@/lib/types";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "",
@@ -17,7 +19,11 @@ const pageTitles: Record<string, string> = {
 
 export function Header() {
   const pathname = usePathname();
-  const user = api.getUser();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    setUser(api.getUser());
+  }, []);
   const pageTitle = pageTitles[pathname] || "";
 
   return (

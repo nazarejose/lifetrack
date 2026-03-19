@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  User,
+  User as UserIcon,
   Bell,
   Shield,
   Palette,
@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
+import type { User } from "@/lib/types";
 
 type SettingsTab =
   | "profile"
@@ -30,7 +31,7 @@ type SettingsTab =
   | "billing";
 
 const settingsTabs = [
-  { id: "profile" as const, name: "Profile", icon: User },
+  { id: "profile" as const, name: "Profile", icon: UserIcon },
   { id: "notifications" as const, name: "Notifications", icon: Bell },
   { id: "security" as const, name: "Security", icon: Shield },
   { id: "appearance" as const, name: "Appearance", icon: Palette },
@@ -40,7 +41,11 @@ const settingsTabs = [
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
-  const user = api.getUser();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    setUser(api.getUser());
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -315,24 +320,24 @@ export default function SettingsPage() {
           {(activeTab === "appearance" ||
             activeTab === "language" ||
             activeTab === "billing") && (
-            <Card className="bg-[#111827] border-[#1e293b]">
-              <CardHeader>
-                <CardTitle className="text-foreground capitalize">
-                  {activeTab === "billing"
-                    ? "Billing & Plan"
-                    : activeTab === "language"
-                    ? "Language & Region"
-                    : activeTab}{" "}
-                  Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  {activeTab} settings coming soon...
-                </p>
-              </CardContent>
-            </Card>
-          )}
+              <Card className="bg-[#111827] border-[#1e293b]">
+                <CardHeader>
+                  <CardTitle className="text-foreground capitalize">
+                    {activeTab === "billing"
+                      ? "Billing & Plan"
+                      : activeTab === "language"
+                        ? "Language & Region"
+                        : activeTab}{" "}
+                    Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    {activeTab} settings coming soon...
+                  </p>
+                </CardContent>
+              </Card>
+            )}
         </div>
       </div>
     </div>
