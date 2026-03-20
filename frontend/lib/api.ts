@@ -1,4 +1,4 @@
-import type { User, Transaction, TransactionSummary, Habit, AuthApiResponse, TransactionType, Frequency } from './types';
+import type { User, Transaction, TransactionSummary, Habit, AuthApiResponse, TransactionType, Frequency, Goal, GoalStatus } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
 
@@ -132,6 +132,49 @@ class ApiClient {
 
   async deleteHabit(id: string): Promise<void> {
     await this.request(`/habits/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Goals
+  async getGoals(): Promise<Goal[]> {
+    return this.request<Goal[]>('/goals');
+  }
+
+  async createGoal(data: {
+    name: string;
+    description?: string;
+    targetValue: number;
+    currentValue?: number;
+    deadline: string;
+    category: string;
+    status?: GoalStatus;
+    habitId?: string;
+  }): Promise<Goal> {
+    return this.request<Goal>('/goals', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateGoal(id: string, data: {
+    currentValue?: number;
+    status?: GoalStatus;
+    name?: string;
+    description?: string;
+    targetValue?: number;
+    deadline?: string;
+    category?: string;
+    habitId?: string;
+  }): Promise<Goal> {
+    return this.request<Goal>(`/goals/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteGoal(id: string): Promise<void> {
+    await this.request(`/goals/${id}`, {
       method: 'DELETE',
     });
   }

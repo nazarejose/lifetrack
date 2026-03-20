@@ -1,5 +1,6 @@
 export type Frequency = 'DAILY' | 'WEEKLY' | 'MONTHLY';
 export type TransactionType = 'INCOME' | 'EXPENSE';
+export type GoalStatus = 'ON_TRACK' | 'AT_RISK' | 'COMPLETED' | 'BEHIND';
 
 export interface User {
   id: string;
@@ -40,7 +41,8 @@ export interface Goal {
   currentValue: number;
   deadline: string;
   category: string;
-  status: 'on-track' | 'at-risk' | 'completed' | 'behind';
+  status: GoalStatus;
+  habitId?: string;
 }
 
 export interface AuthApiResponse {
@@ -48,3 +50,4 @@ export interface AuthApiResponse {
   expiresIn: string;
   data: User;
 }
+

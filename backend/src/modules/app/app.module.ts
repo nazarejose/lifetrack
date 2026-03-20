@@ -8,6 +8,7 @@ import { I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { join } from 'path';
 import { HabitsModule } from '../habits/habits.module';
 import { TransactionsModule } from 'src/transactions/transactions.module';
+import { GoalsModule } from '../goals/goals.module';
 
 
 @Module({
@@ -16,6 +17,7 @@ import { TransactionsModule } from 'src/transactions/transactions.module';
     UsersModule,
     HabitsModule,
     TransactionsModule,
+    GoalsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

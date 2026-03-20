@@ -17,6 +17,7 @@ model User {
 
   habits       Habit[]
   transactions Transaction[]
+  goals        Goal[]
 
   @@map("user")
 }
@@ -37,6 +38,7 @@ model Habit {
   userId String
   user   User   @relation(fields: [userId], references: [id])
   logs   HabitLog[]
+  goals  Goal[]
 
   @@map("habits")
 }
@@ -67,3 +69,30 @@ model Transaction {
 
   @@map("transactions")
 }
+
+enum GoalStatus {
+  ON_TRACK
+  AT_RISK
+  COMPLETED
+  BEHIND
+}
+
+model Goal {
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  targetValue  Int
+  currentValue Int      @default(0)
+  deadline     DateTime
+  category     String
+  status       GoalStatus @default(ON_TRACK)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+
+  habitId      String?           // ← novo campo opcional
+  habit        Habit?   @relation(fields: [habitId], references: [id])
+
+  createdAt    DateTime @default(now())
+  @@map("goals")
+}
+

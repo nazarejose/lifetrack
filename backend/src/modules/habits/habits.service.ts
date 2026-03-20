@@ -134,25 +134,39 @@ export class HabitsService {
     const habit = await this.prisma.habit.findFirst({
       where: { id: habitId, userId },
     });
-
+  
     if (!habit) throw new NotFoundException('Hábito não encontrado');
-
+  
     const { start, end } = this.getDateRange(habit.frequency);
-
+  
     const existingLog = await this.prisma.habitLog.findFirst({
       where: {
         habitId,
         date: { gte: start, lt: end },
       },
     });
-
+  
     if (existingLog) {
+      
       await this.prisma.habitLog.delete({ where: { id: existingLog.id } });
+
+      await this.prisma.goal.updateMany({
+        where: { habitId, userId },
+        data: { currentValue: { decrement: 1 } },
+      });
+  
       return { checked: false };
     } else {
+
       await this.prisma.habitLog.create({
         data: { habitId, date: new Date() },
       });
+  
+      await this.prisma.goal.updateMany({
+        where: { habitId, userId },
+        data: { currentValue: { increment: 1 } },
+      });
+  
       return { checked: true };
     }
   }
