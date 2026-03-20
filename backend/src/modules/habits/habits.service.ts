@@ -151,7 +151,7 @@ export class HabitsService {
       await this.prisma.habitLog.delete({ where: { id: existingLog.id } });
 
       await this.prisma.goal.updateMany({
-        where: { habitId, userId },
+        where: { habitId, userId, currentValue: { gt: 0 } },
         data: { currentValue: { decrement: 1 } },
       });
   

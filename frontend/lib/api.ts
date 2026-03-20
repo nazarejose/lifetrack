@@ -26,6 +26,14 @@ class ApiClient {
       ...options,
       headers,
     });
+    
+    if (response.status === 401) {
+      this.logout();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
+      throw new Error('Unauthorized');
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));

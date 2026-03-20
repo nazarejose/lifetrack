@@ -31,6 +31,7 @@ export interface Habit {
   totalCompletions: number;
   isCheckedToday: boolean;
   icon?: string;
+  streak: number;
 }
 
 export interface Goal {

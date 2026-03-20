@@ -97,12 +97,12 @@ export default function HabitsPage() {
       prev.map((h) =>
         h.id === habitId
           ? {
-              ...h,
-              isCheckedToday: !h.isCheckedToday,
-              totalCompletions: h.isCheckedToday
-                ? h.totalCompletions - 1
-                : h.totalCompletions + 1,
-            }
+            ...h,
+            isCheckedToday: !h.isCheckedToday,
+            totalCompletions: h.isCheckedToday
+              ? h.totalCompletions - 1
+              : h.totalCompletions + 1,
+          }
           : h
       )
     );
@@ -114,12 +114,12 @@ export default function HabitsPage() {
         prev.map((h) =>
           h.id === habitId
             ? {
-                ...h,
-                isCheckedToday: !h.isCheckedToday,
-                totalCompletions: h.isCheckedToday
-                  ? h.totalCompletions + 1
-                  : h.totalCompletions - 1,
-              }
+              ...h,
+              isCheckedToday: !h.isCheckedToday,
+              totalCompletions: h.isCheckedToday
+                ? h.totalCompletions + 1
+                : h.totalCompletions - 1,
+            }
             : h
         )
       );
@@ -384,8 +384,8 @@ export default function HabitsPage() {
                             {habit.frequency === "DAILY"
                               ? "Daily"
                               : habit.frequency === "WEEKLY"
-                              ? "Weekly"
-                              : "Monthly"}
+                                ? "Weekly"
+                                : "Monthly"}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -399,7 +399,7 @@ export default function HabitsPage() {
                       <div className="flex items-center gap-1 text-[#f59e0b]">
                         <Flame className="h-4 w-4" />
                         <span className="text-sm font-medium">
-                          {habit.totalCompletions} days
+                          {habit.streak ?? 0} days
                         </span>
                       </div>
                       <Button
