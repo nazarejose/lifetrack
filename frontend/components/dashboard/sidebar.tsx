@@ -8,18 +8,15 @@ import {
   CreditCard,
   CheckSquare,
   Target,
-  BarChart3,
   Settings,
   LogOut,
   Menu,
   X,
-  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { Badge } from "@/components/ui/badge";
 import { User } from "@/lib/types";
 
 const mainNavigation = [
@@ -27,7 +24,6 @@ const mainNavigation = [
   { name: "Finances", href: "/dashboard/finances", icon: CreditCard },
   { name: "Habits", href: "/dashboard/habits", icon: CheckSquare },
   { name: "Goals", href: "/dashboard/goals", icon: Target },
-  { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
 ];
 
 const settingsNavigation = [
@@ -144,19 +140,6 @@ export function Sidebar() {
           </ul>
         </nav>
 
-        {/* Upgrade Card */}
-        <div className="mx-3 mb-4 rounded-lg bg-[#1e293b] p-4">
-          <p className="text-sm text-foreground mb-1">
-            Unlock advanced analytics and unlimited habits.
-          </p>
-          <Link
-            href="/dashboard/settings"
-            className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-          >
-            Upgrade Now <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-
         {/* User Profile */}
         <div className="border-t border-[#1e293b] p-3">
           <div className="flex items-center gap-3 px-2 py-2">
@@ -167,12 +150,6 @@ export function Sidebar() {
               <p className="text-sm font-medium text-foreground truncate">
                 {user?.name || ""}
               </p>
-              <Badge
-                variant="secondary"
-                className="bg-primary/20 text-primary text-xs px-1.5 py-0 h-5"
-              >
-                Pro Plan
-              </Badge>
             </div>
             <button
               onClick={handleLogout}

@@ -17,6 +17,7 @@ model User {
 
   habits       Habit[]
   transactions Transaction[]
+  transactionCategories  TransactionCategory[]
   goals        Goal[]
 
   @@map("user")
@@ -59,15 +60,33 @@ enum TransactionType {
 }
 
 model Transaction {
-  id              String          @id @default(uuid())
+  id              String               @id @default(uuid())
   description     String
   amount          Int
   transactionType TransactionType
   date            DateTime
   userId          String
-  user            User            @relation(fields: [userId], references: [id])
+  user            User                 @relation(fields: [userId], references: [id])
+
+  categoryId      String?
+  category        TransactionCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@map("transactions")
+}
+model TransactionCategory {
+  id              String          @id @default(uuid())
+  name            String
+  type            TransactionType
+  color           String          @default("#3b82f6")
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions    Transaction[]
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("transaction_categories")
 }
 
 enum GoalStatus {

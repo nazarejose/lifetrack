@@ -1,4 +1,15 @@
-import type { User, Transaction, TransactionSummary, Habit, AuthApiResponse, TransactionType, Frequency, Goal, GoalStatus } from './types';
+import type {
+  User,
+  Transaction,
+  TransactionSummary,
+  TransactionCategory,
+  Habit,
+  AuthApiResponse,
+  TransactionType,
+  Frequency,
+  Goal,
+  GoalStatus,
+} from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
 
@@ -8,10 +19,7 @@ class ApiClient {
     return localStorage.getItem('token');
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = this.getToken();
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -22,16 +30,11 @@ class ApiClient {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
-    
+    const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+
     if (response.status === 401) {
       this.logout();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/';
-      }
+      if (typeof window !== 'undefined') window.location.href = '/';
       throw new Error('Unauthorized');
     }
 
@@ -43,7 +46,8 @@ class ApiClient {
     return response.json();
   }
 
-  // Auth
+  // ─── Auth ─────────────────────────────────────────────────────────────────
+
   async login(email: string, password: string): Promise<AuthApiResponse> {
     const data = await this.request<AuthApiResponse>('/auth/login', {
       method: 'POST',
@@ -84,7 +88,8 @@ class ApiClient {
     return !!this.getToken();
   }
 
-  // Transactions
+  // ─── Transactions ─────────────────────────────────────────────────────────
+
   async getTransactions(): Promise<Transaction[]> {
     return this.request<Transaction[]>('/transactions');
   }
@@ -97,7 +102,7 @@ class ApiClient {
     description: string;
     amount: number;
     type: TransactionType;
-    category: string;
+    categoryId?: string;
   }): Promise<Transaction> {
     return this.request<Transaction>('/transactions', {
       method: 'POST',
@@ -106,19 +111,44 @@ class ApiClient {
         amount: data.amount,
         transactionType: data.type,
         date: new Date().toISOString(),
+        categoryId: data.categoryId ?? null,
       }),
     });
   }
 
   async deleteTransaction(id: string): Promise<void> {
-    await this.request(`/transactions/${id}`, {
-      method: 'DELETE',
+    await this.request(`/transactions/${id}`, { method: 'DELETE' });
+  }
+
+  // ─── Transaction Categories ───────────────────────────────────────────────
+
+  async getTransactionCategories(): Promise<TransactionCategory[]> {
+    return this.request<TransactionCategory[]>('/transaction-categories');
+  }
+
+  async createTransactionCategory(data: {
+    name: string;
+    type: TransactionType;
+    color: string;
+  }): Promise<TransactionCategory> {
+    return this.request<TransactionCategory>('/transaction-categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
     });
   }
 
-  // Habits
+  async deleteTransactionCategory(id: string): Promise<void> {
+    await this.request(`/transaction-categories/${id}`, { method: 'DELETE' });
+  }
+
+  // ─── Habits ───────────────────────────────────────────────────────────────
+
   async getHabits(): Promise<Habit[]> {
     return this.request<Habit[]>('/habits');
+  }
+
+  async getHabitHistory(period: 'weekly' | 'monthly'): Promise<{ label: string; value: number }[]> {
+    return this.request(`/habits/history?period=${period}`);
   }
 
   async createHabit(data: {
@@ -133,18 +163,15 @@ class ApiClient {
   }
 
   async toggleHabit(id: string): Promise<Habit> {
-    return this.request<Habit>(`/habits/${id}/toggle`, {
-      method: 'POST',
-    });
+    return this.request<Habit>(`/habits/${id}/toggle`, { method: 'POST' });
   }
 
   async deleteHabit(id: string): Promise<void> {
-    await this.request(`/habits/${id}`, {
-      method: 'DELETE',
-    });
+    await this.request(`/habits/${id}`, { method: 'DELETE' });
   }
 
-  // Goals
+  // ─── Goals ────────────────────────────────────────────────────────────────
+
   async getGoals(): Promise<Goal[]> {
     return this.request<Goal[]>('/goals');
   }
@@ -182,9 +209,7 @@ class ApiClient {
   }
 
   async deleteGoal(id: string): Promise<void> {
-    await this.request(`/goals/${id}`, {
-      method: 'DELETE',
-    });
+    await this.request(`/goals/${id}`, { method: 'DELETE' });
   }
 }
 

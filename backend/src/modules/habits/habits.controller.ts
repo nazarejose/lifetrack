@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { HabitsService } from './habits.service';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
@@ -7,7 +7,15 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('habits')
 export class HabitsController {
-  constructor(private readonly habitsService: HabitsService) {}
+  constructor(private readonly habitsService: HabitsService) { }
+
+  @Get('history')
+  getHistory(
+    @Query('period') period: 'weekly' | 'monthly' = 'weekly',
+    @Req() req: any,
+  ) {
+    return this.habitsService.getHistory(req.user.id, period);
+  }
 
   @Post()
   create(@Body() createHabitDto: CreateHabitDto, @Req() req: any) {
@@ -34,13 +42,13 @@ export class HabitsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: any, ) {
+  remove(@Param('id') id: string, @Req() req: any,) {
     const userId = req.user.id;
     return this.habitsService.remove(id, userId);
   }
 
   @Post(':id/toggle')
   toggleHabit(@Param('id') id: string, @Req() req: any) {
-  return this.habitsService.toggleCheckIn(id, req.user.id);
-}
+    return this.habitsService.toggleCheckIn(id, req.user.id);
+  }
 }

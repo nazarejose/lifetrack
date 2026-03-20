@@ -16,6 +16,10 @@ export class TransactionsService {
         transactionType: createTransactionDto.transactionType,
         date: new Date(createTransactionDto.date),
         userId: userId,
+        categoryId: createTransactionDto.categoryId ?? null,
+      },
+      include: {
+        category: true,
       },
     });
   
@@ -24,13 +28,12 @@ export class TransactionsService {
 
   async findAll(userId: string) {
     return this.prisma.transaction.findMany({
-      where:{
-        userId,
+      where: { userId },
+      orderBy: { date: 'desc' },
+      include: {
+        category: true,
       },
-      orderBy:{
-        date: 'desc',
-      }
-    })
+    });
   }
 
   async findOne(id: string, userId: string) {

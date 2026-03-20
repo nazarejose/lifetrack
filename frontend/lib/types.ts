@@ -8,13 +8,21 @@ export interface User {
   email: string;
 }
 
+export interface TransactionCategory {
+  id: string;
+  name: string;
+  type: TransactionType;
+  color: string;
+}
+
 export interface Transaction {
   id: string;
   description: string;
   amount: number;
   transactionType: TransactionType;
-  category: string;
   date: string;
+  categoryId?: string;
+  category?: TransactionCategory;
 }
 
 export interface TransactionSummary {
@@ -37,7 +45,7 @@ export interface Habit {
 export interface Goal {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   targetValue: number;
   currentValue: number;
   deadline: string;
@@ -51,4 +59,3 @@ export interface AuthApiResponse {
   expiresIn: string;
   data: User;
 }
-

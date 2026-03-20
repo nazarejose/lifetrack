@@ -2,7 +2,6 @@
 
 import { Bell, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,10 +9,9 @@ import { User } from "@/lib/types";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "",
-  "/dashboard/finances": "Finance Overview",
+  "/dashboard/finances": "Finances",
   "/dashboard/habits": "Habits",
   "/dashboard/goals": "Goals",
-  "/dashboard/reports": "Reports",
   "/dashboard/settings": "Settings",
 };
 
@@ -24,6 +22,7 @@ export function Header() {
   useEffect(() => {
     setUser(api.getUser());
   }, []);
+
   const pageTitle = pageTitles[pathname] || "";
 
   return (
@@ -49,18 +48,12 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-            {user?.name?.charAt(0) || "A"}S
+            {user?.name?.charAt(0) || ""}
           </div>
           <div className="hidden sm:block">
             <p className="text-sm font-medium text-foreground">
-              {user?.name || "Alex Silva"}
+              {user?.name || ""}
             </p>
-            <Badge
-              variant="secondary"
-              className="bg-primary/20 text-primary text-xs px-1.5 py-0 h-4"
-            >
-              Pro
-            </Badge>
           </div>
         </div>
       </div>

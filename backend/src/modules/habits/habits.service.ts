@@ -34,6 +34,92 @@ export class HabitsService {
     return { start, end };
   }
 
+
+  async getHistory(userId: string, period: 'weekly' | 'monthly') {
+    const habits = await this.prisma.habit.findMany({
+      where: { userId },
+      include: { logs: true },
+    });
+   
+    const totalHabits = habits.length;
+    if (totalHabits === 0) return [];
+   
+    if (period === 'weekly') {
+
+      const result: { label: string; value: number; date: string }[] = [];
+      const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+   
+      for (let i = 6; i >= 0; i--) {
+        const day = new Date();
+        day.setDate(day.getDate() - i);
+        day.setHours(0, 0, 0, 0);
+   
+        const nextDay = new Date(day);
+        nextDay.setDate(nextDay.getDate() + 1);
+   
+        const completedCount = habits.filter((habit) =>
+          habit.logs.some(
+            (log) => log.date >= day && log.date < nextDay
+          )
+        ).length;
+   
+        const percentage = Math.round((completedCount / totalHabits) * 100);
+   
+        result.push({
+          label: labels[day.getDay()],
+          value: percentage,
+          date: day.toISOString().split('T')[0],
+        });
+      }
+   
+      return result;
+    }
+   
+    // Monthly — últimos 12 meses
+    const result: { label: string; value: number; date: string }[] = [];
+    const monthLabels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+                         'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+   
+    for (let i = 11; i >= 0; i--) {
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setMonth(monthStart.getMonth() - i);
+      monthStart.setHours(0, 0, 0, 0);
+   
+      const monthEnd = new Date(monthStart);
+      monthEnd.setMonth(monthEnd.getMonth() + 1);
+   
+      const daysInMonth = Math.round(
+        (monthEnd.getTime() - monthStart.getTime()) / (1000 * 60 * 60 * 24)
+      );
+   
+      let totalPercentage = 0;
+   
+      for (let d = 0; d < daysInMonth; d++) {
+        const dayStart = new Date(monthStart);
+        dayStart.setDate(dayStart.getDate() + d);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+   
+        const completedCount = habits.filter((habit) =>
+          habit.logs.some(
+            (log) => log.date >= dayStart && log.date < dayEnd
+          )
+        ).length;
+   
+        totalPercentage += (completedCount / totalHabits) * 100;
+      }
+   
+      result.push({
+        label: monthLabels[monthStart.getMonth()],
+        value: Math.round(totalPercentage / daysInMonth),
+        date: monthStart.toISOString().split('T')[0],
+      });
+    }
+   
+    return result;
+  }
+
   async create(createHabitDto: CreateHabitDto, userId: string) {
     const data: Prisma.HabitCreateInput = {
       name: createHabitDto.name,

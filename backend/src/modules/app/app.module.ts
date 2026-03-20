@@ -9,6 +9,7 @@ import { join } from 'path';
 import { HabitsModule } from '../habits/habits.module';
 import { TransactionsModule } from 'src/transactions/transactions.module';
 import { GoalsModule } from '../goals/goals.module';
+import { TransactionCategoriesModule } from '../transaction-categories/transaction-categories.module';
 
 
 @Module({
@@ -18,6 +19,7 @@ import { GoalsModule } from '../goals/goals.module';
     HabitsModule,
     TransactionsModule,
     GoalsModule,
+    TransactionCategoriesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

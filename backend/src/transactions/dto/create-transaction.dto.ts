@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsNotEmpty, IsString } from "@nestjs/class-validator";
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from "@nestjs/class-validator";
 import { TransactionType } from "@prisma/client";
 
 export class CreateTransactionDto {
@@ -15,4 +15,8 @@ export class CreateTransactionDto {
 
     @IsDateString()
     date: string;
+
+    @IsString()
+    @IsOptional()
+    categoryId?: string;
 }
