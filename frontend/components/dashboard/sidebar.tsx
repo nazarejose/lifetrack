@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { User } from "@/lib/types";
 
+
 const mainNavigation = [
   { name: "Overview", href: "/dashboard", icon: LayoutGrid },
   { name: "Finances", href: "/dashboard/finances", icon: CreditCard },

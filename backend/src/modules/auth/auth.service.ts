@@ -1,7 +1,7 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {UsersService} from "../user/user.service";
 import {JwtService} from "@nestjs/jwt";
-import {CreateUserDto, LoginUserDto} from "../user/user.dto";
+import {CreateUserDto, LoginUserDto} from "../user/dto/user.dto";
 import {JwtPayload} from "./jwt.strategy";
 import {PrismaService} from "../../prisma.service";
 import {User} from '@prisma/client'

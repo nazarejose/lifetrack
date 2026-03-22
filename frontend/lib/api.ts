@@ -88,6 +88,23 @@ class ApiClient {
     return !!this.getToken();
   }
 
+  // ─── User ─────────────────────────────────────────────────────────────────
+
+  async updateProfile(data: { name: string; email: string }): Promise<User> {
+    const updated = await this.request<User>('/user/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    // Atualiza o localStorage com os novos dados
+    localStorage.setItem('user', JSON.stringify(updated));
+    return updated;
+  }
+
+  async deleteAccount(): Promise<void> {
+    await this.request('/user/account', { method: 'DELETE' });
+    this.logout();
+  }
+
   // ─── Transactions ─────────────────────────────────────────────────────────
 
   async getTransactions(): Promise<Transaction[]> {

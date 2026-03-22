@@ -8,7 +8,7 @@ import {
     UseInterceptors
 } from '@nestjs/common';
 import {AuthService, RegistrationSeederStatus, RegistrationStatus} from "./auth.service";
-import {CreateUserDto, LoginUserDto} from "../user/user.dto";
+import {CreateUserDto, LoginUserDto} from "../user/dto/user.dto";
 import {ApiBearerAuth, ApiSecurity, ApiTags} from "@nestjs/swagger";
 
 
