@@ -16,22 +16,25 @@ export class AuthService {
         private readonly usersService: UsersService,
     ) {}
 
-    async register(userDto: CreateUserDto):
-        Promise<RegistrationStatus> {
-        let status: RegistrationStatus = {
-            success: true,
-            message: "ACCOUNT_CREATE_SUCCESS",
-        };
-
+    async register(userDto: CreateUserDto): Promise<RegistrationStatus> {
         try {
-            status.data = await this.usersService.create(userDto);
+            
+            const user = await this.usersService.create(userDto);
+            const token = this._createToken(user);
+
+            return {
+                success: true,
+                message: "ACCOUNT_CREATE_SUCCESS",
+                data: user,
+                accessToken: token.accessToken,
+                expiresIn: token.expiresIn
+            };
         } catch (err) {
-            status = {
+            return {
                 success: false,
-                message: err,
+                message: err.message || "Erro ao criar conta",
             };
         }
-        return status;
     }
 
     async login(loginUserDto: LoginUserDto): Promise<any> {
@@ -69,9 +72,13 @@ export interface RegistrationStatus{
     success: boolean;
     message: string;
     data?: User;
+    accessToken?: string;
+    expiresIn?: string;
 }
 export interface RegistrationSeederStatus {
     success: boolean;
     message: string;
     data?: User[];
+    accessToken?: string;
+    expiresIn?: string;
 }

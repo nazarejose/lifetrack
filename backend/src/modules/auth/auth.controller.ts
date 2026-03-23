@@ -20,17 +20,16 @@ export class AuthController {
         private readonly authService: AuthService,
         ) {}
 
-    @Post('register')
-    public async register(@Body() createUserDto: CreateUserDto,  ): 
-       Promise<RegistrationStatus> {
-        const result:RegistrationStatus = await 
-              this.authService.register(createUserDto,);
-        if (!result.success) {
-            throw new HttpException(result.message,  
-               HttpStatus.BAD_REQUEST);
+        @Post('register')
+        public async register(@Body() createUserDto: CreateUserDto): Promise<any> {
+            const result = await this.authService.register(createUserDto);
+            
+            if (!result.success) {
+                throw new HttpException(result.message, HttpStatus.BAD_REQUEST);
+            }
+            
+            return result;
         }
-        return result;
-    }
 
     @Post('login')
     public async login(@Body() loginUserDto: LoginUserDto): 
