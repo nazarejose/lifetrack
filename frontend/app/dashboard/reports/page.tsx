@@ -1,411 +1,350 @@
 "use client";
 
-import { useState } from "react";
-import { Calendar, Download, TrendingUp, TrendingDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  User as UserIcon,
+  Shield,
+  Palette,
+  Globe,
+  ChevronRight,
+  LogOut,
+  Sun,
+  Moon,
+  Check,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
-import { formatCurrency } from "@/lib/format";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import type { User } from "@/lib/types";
 
-const incomeVsExpenses = [
-  { month: "Jan", income: 5200, expenses: 3800 },
-  { month: "Feb", income: 4800, expenses: 4200 },
-  { month: "Mar", income: 6100, expenses: 3900 },
-  { month: "Apr", income: 5500, expenses: 4100 },
-  { month: "May", income: 7200, expenses: 4500 },
-  { month: "Jun", income: 6800, expenses: 4200 },
-  { month: "Jul", income: 8100, expenses: 4800 },
-  { month: "Aug", income: 7500, expenses: 4600 },
-  { month: "Sep", income: 8800, expenses: 5200 },
-  { month: "Oct", income: 9200, expenses: 4900 },
-  { month: "Nov", income: 8500, expenses: 5100 },
-  { month: "Dec", income: 9800, expenses: 5500 },
+type SettingsTab = "profile" | "security" | "appearance" | "language";
+
+const settingsTabs = [
+  { id: "profile" as const,    name: "Perfil",           icon: UserIcon },
+  { id: "security" as const,   name: "Segurança",        icon: Shield },
+  { id: "appearance" as const, name: "Aparência",        icon: Palette },
+  { id: "language" as const,   name: "Idioma e Região",  icon: Globe },
 ];
 
-const expenseCategories = [
-  { name: "Housing", value: 35, color: "#3b82f6" },
-  { name: "Food", value: 20, color: "#22c55e" },
-  { name: "Transport", value: 12, color: "#f59e0b" },
-  { name: "Health", value: 10, color: "#ec4899" },
-  { name: "Education", value: 8, color: "#06b6d4" },
-  { name: "Leisure", value: 15, color: "#ef4444" },
-];
+export default function SettingsPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+  const [user, setUser] = useState<User | null>(null);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [language, setLanguage] = useState<"pt" | "en">("pt");
 
-const monthlySavings = [
-  { month: "Jan", value: 1400 },
-  { month: "Feb", value: 600 },
-  { month: "Mar", value: 2200 },
-  { month: "Apr", value: 1400 },
-  { month: "May", value: 2700 },
-  { month: "Jun", value: 2600 },
-  { month: "Jul", value: 3300 },
-  { month: "Aug", value: 2900 },
-  { month: "Sep", value: 3600 },
-  { month: "Oct", value: 4300 },
-  { month: "Nov", value: 3400 },
-  { month: "Dec", value: 4300 },
-];
+  // Form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
-const habitCompletion = [
-  { month: "Jan", value: 72 },
-  { month: "Feb", value: 68 },
-  { month: "Mar", value: 75 },
-  { month: "Apr", value: 78 },
-  { month: "May", value: 82 },
-  { month: "Jun", value: 79 },
-  { month: "Jul", value: 85 },
-  { month: "Aug", value: 88 },
-  { month: "Sep", value: 82 },
-  { month: "Oct", value: 86 },
-  { month: "Nov", value: 84 },
-  { month: "Dec", value: 89 },
-];
+  useEffect(() => {
+    const u = api.getUser();
+    setUser(u);
+    if (u?.name) setName(u.name);
+    if (u?.email) setEmail(u.email);
 
-export default function ReportsPage() {
-  const [year] = useState(2024);
+    // Lê preferências salvas
+    const savedTheme = localStorage.getItem("theme") as "dark" | "light" | null;
+    const savedLang = localStorage.getItem("language") as "pt" | "en" | null;
+    if (savedTheme) setTheme(savedTheme);
+    if (savedLang) setLanguage(savedLang);
+  }, []);
+
+  const handleThemeChange = (t: "dark" | "light") => {
+    setTheme(t);
+    localStorage.setItem("theme", t);
+    document.documentElement.classList.toggle("dark", t === "dark");
+    document.documentElement.classList.toggle("light", t === "light");
+  };
+
+  const handleLanguageChange = (l: "pt" | "en") => {
+    setLanguage(l);
+    localStorage.setItem("language", l);
+  };
+
+  const handleLogout = () => {
+    api.logout();
+    router.push("/");
+  };
 
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Reports</h1>
-          <p className="text-muted-foreground">
-            Annual performance overview &mdash; {year}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="bg-[#1e293b] border-[#334155] text-foreground hover:bg-[#334155]"
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            {year}
-          </Button>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
+        <p className="text-muted-foreground">
+          Gerencie sua conta e preferências
+        </p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardContent className="p-5">
-            <p className="text-sm text-muted-foreground mb-1">
-              Avg Monthly Income
-            </p>
-            <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(8242)}
-            </p>
-            <div className="flex items-center gap-1 mt-2 text-sm text-[#22c55e]">
-              <TrendingUp className="h-4 w-4" />
-              <span>+8.2% vs last year</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardContent className="p-5">
-            <p className="text-sm text-muted-foreground mb-1">
-              Avg Monthly Expenses
-            </p>
-            <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(3842)}
-            </p>
-            <div className="flex items-center gap-1 mt-2 text-sm text-[#ef4444]">
-              <TrendingDown className="h-4 w-4" />
-              <span>-5.4% vs last year</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardContent className="p-5">
-            <p className="text-sm text-muted-foreground mb-1">
-              Avg Monthly Savings
-            </p>
-            <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(4400)}
-            </p>
-            <div className="flex items-center gap-1 mt-2 text-sm text-[#22c55e]">
-              <TrendingUp className="h-4 w-4" />
-              <span>+14.3% vs last year</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardContent className="p-5">
-            <p className="text-sm text-muted-foreground mb-1">
-              Habit Completion Rate
-            </p>
-            <p className="text-2xl font-bold text-foreground">83%</p>
-            <div className="flex items-center gap-1 mt-2 text-sm text-[#22c55e]">
-              <TrendingUp className="h-4 w-4" />
-              <span>+11% vs last year</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts Row 1 */}
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        {/* Income vs Expenses */}
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div>
-              <CardTitle className="text-foreground text-lg">
-                Income vs Expenses
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Monthly comparison &mdash; {year}
-              </p>
-            </div>
-            <Badge variant="secondary" className="bg-[#1e293b] text-foreground">
-              Annual
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={incomeVsExpenses}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#1e293b"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `${value / 1000}k`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1e293b",
-                      border: "1px solid #334155",
-                      borderRadius: "8px",
-                      color: "#f8fafc",
-                    }}
-                    formatter={(value: number) => [formatCurrency(value), ""]}
-                  />
-                  <Bar
-                    dataKey="income"
-                    fill="#3b82f6"
-                    radius={[4, 4, 0, 0]}
-                    name="Income"
-                  />
-                  <Bar
-                    dataKey="expenses"
-                    fill="#22c55e"
-                    radius={[4, 4, 0, 0]}
-                    name="Expenses"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Expense Categories */}
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-foreground text-lg">
-              Expense Categories
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Distribution of monthly spending
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenseCategories}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {expenseCategories.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1e293b",
-                      border: "1px solid #334155",
-                      borderRadius: "8px",
-                      color: "#f8fafc",
-                    }}
-                    formatter={(value: number) => [`${value}%`, ""]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              {expenseCategories.map((cat) => (
-                <div key={cat.name} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: cat.color }}
-                    />
-                    <span className="text-muted-foreground">{cat.name}</span>
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        {/* Sidebar */}
+        <Card className="bg-card border-border h-fit">
+          <CardContent className="p-2">
+            <nav className="flex flex-col gap-1">
+              {settingsTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    activeTab === tab.id
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <tab.icon className="h-5 w-5" />
+                    {tab.name}
                   </div>
-                  <span className="font-medium text-foreground">{cat.value}%</span>
-                </div>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts Row 2 */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Monthly Savings */}
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-foreground text-lg">
-              Monthly Savings
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Net savings per month &mdash; {year}
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlySavings}>
-                  <defs>
-                    <linearGradient id="savingsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#1e293b"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `${value / 1000}k`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1e293b",
-                      border: "1px solid #334155",
-                      borderRadius: "8px",
-                      color: "#f8fafc",
-                    }}
-                    formatter={(value: number) => [formatCurrency(value), "Savings"]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#3b82f6"
-                    strokeWidth={2}
-                    fill="url(#savingsGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#ef4444] hover:bg-[#ef4444]/10 transition-colors mt-2"
+              >
+                <LogOut className="h-5 w-5" />
+                Sair
+              </button>
+            </nav>
           </CardContent>
         </Card>
 
-        {/* Habit Completion Rate */}
-        <Card className="bg-[#111827] border-[#1e293b]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-foreground text-lg">
-              Habit Completion Rate
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Monthly % of habits completed &mdash; {year}
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={habitCompletion}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#1e293b"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    domain={[60, 100]}
-                    tickFormatter={(value) => `${value}%`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1e293b",
-                      border: "1px solid #334155",
-                      borderRadius: "8px",
-                      color: "#f8fafc",
-                    }}
-                    formatter={(value: number) => [`${value}%`, "Completion Rate"]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={{ fill: "#22c55e", strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: "#22c55e" }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Content */}
+        <div className="flex flex-col gap-6">
+
+          {/* ── Perfil ── */}
+          {activeTab === "profile" && (
+            <>
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">
+                    Informações do Perfil
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-6">
+                  {/* Avatar */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-xl font-semibold text-primary-foreground">
+                      {user?.name?.charAt(0) || ""}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {user?.name || ""}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {user?.email || ""}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Nome */}
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Nome completo
+                    </Label>
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="bg-secondary border-border"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                      E-mail
+                    </Label>
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-secondary border-border"
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                      Salvar alterações
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Danger Zone */}
+              <Card className="bg-card border-[#ef4444]/30">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Zona de Perigo</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Ações irreversíveis para sua conta
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-[#ef4444]/10 border border-[#ef4444]/20">
+                    <div>
+                      <p className="font-medium text-foreground">
+                        Deletar conta
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Exclui permanentemente sua conta e todos os dados
+                      </p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      className="bg-[#ef4444] hover:bg-[#ef4444]/90"
+                    >
+                      Deletar
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {/* ── Segurança ── */}
+          {activeTab === "security" && (
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground">Segurança</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <Label className="text-foreground">Senha atual</Label>
+                  <Input type="password" placeholder="Digite a senha atual" className="bg-secondary border-border" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="text-foreground">Nova senha</Label>
+                  <Input type="password" placeholder="Digite a nova senha" className="bg-secondary border-border" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="text-foreground">Confirmar nova senha</Label>
+                  <Input type="password" placeholder="Confirme a nova senha" className="bg-secondary border-border" />
+                </div>
+                <Button className="self-start bg-primary text-primary-foreground">
+                  Atualizar senha
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── Aparência ── */}
+          {activeTab === "appearance" && (
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground">Aparência</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Escolha o tema da interface
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Dark */}
+                  <button
+                    onClick={() => handleThemeChange("dark")}
+                    className={cn(
+                      "relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                      theme === "dark"
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-secondary hover:border-[#475569]"
+                    )}
+                  >
+                    {theme === "dark" && (
+                      <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                    )}
+                    {/* Preview dark */}
+                    <div className="w-full rounded-lg bg-background p-3 space-y-1.5">
+                      <div className="h-2 w-3/4 rounded bg-secondary" />
+                      <div className="h-2 w-1/2 rounded bg-secondary" />
+                      <div className="h-6 w-full rounded bg-card mt-2" />
+                    </div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Moon className="h-4 w-4" />
+                      Escuro
+                    </div>
+                  </button>
+
+                  {/* Light */}
+                  <button
+                    onClick={() => handleThemeChange("light")}
+                    className={cn(
+                      "relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                      theme === "light"
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-secondary hover:border-[#475569]"
+                    )}
+                  >
+                    {theme === "light" && (
+                      <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                    )}
+                    {/* Preview light */}
+                    <div className="w-full rounded-lg bg-white p-3 space-y-1.5">
+                      <div className="h-2 w-3/4 rounded bg-gray-200" />
+                      <div className="h-2 w-1/2 rounded bg-gray-200" />
+                      <div className="h-6 w-full rounded bg-gray-100 mt-2" />
+                    </div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Sun className="h-4 w-4" />
+                      Claro
+                    </div>
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── Idioma ── */}
+          {activeTab === "language" && (
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground">Idioma e Região</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Escolha o idioma da interface
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-3">
+                  {[
+                    { id: "pt" as const, label: "Português (Brasil)", flag: "🇧🇷" },
+                    { id: "en" as const, label: "English (US)",        flag: "🇺🇸" },
+                  ].map((lang) => (
+                    <button
+                      key={lang.id}
+                      onClick={() => handleLanguageChange(lang.id)}
+                      className={cn(
+                        "flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all text-left",
+                        language === lang.id
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-secondary hover:border-[#475569]"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{lang.flag}</span>
+                        <span className="text-sm font-medium text-foreground">
+                          {lang.label}
+                        </span>
+                      </div>
+                      {language === lang.id && (
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                          <Check className="h-3 w-3 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+        </div>
       </div>
     </div>
   );

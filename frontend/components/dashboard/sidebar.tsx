@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useLanguage } from "@/components/language-provider";
+import { translations } from "@/lib/i18n";
 import {
   TrendingUp,
   LayoutGrid,
@@ -19,21 +21,22 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { User } from "@/lib/types";
 
-
-const mainNavigation = [
-  { name: "Overview", href: "/dashboard", icon: LayoutGrid },
-  { name: "Finances", href: "/dashboard/finances", icon: CreditCard },
-  { name: "Habits", href: "/dashboard/habits", icon: CheckSquare },
-  { name: "Goals", href: "/dashboard/goals", icon: Target },
+const mainNavKeys = [
+  { key: "overview" as const, href: "/dashboard", icon: LayoutGrid },
+  { key: "finances" as const, href: "/dashboard/finances", icon: CreditCard },
+  { key: "habits" as const, href: "/dashboard/habits", icon: CheckSquare },
+  { key: "goals" as const, href: "/dashboard/goals", icon: Target },
 ];
 
-const settingsNavigation = [
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+const settingsNavKeys = [
+  { key: "settings" as const, href: "/dashboard/settings", icon: Settings },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { language } = useLanguage();
+  const t = translations[language].nav;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -48,15 +51,18 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden bg-card"
-        onClick={() => setMobileOpen(!mobileOpen)}
-      >
-        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
+      {/* Mobile Menu Button - só aparece quando sidebar está fechada */}
+      {!mobileOpen && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed top-4 left-4 z-50 lg:hidden bg-card border border-border shadow-sm"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Abrir menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
 
       {/* Mobile Overlay */}
       {mobileOpen && (
@@ -69,33 +75,44 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-[220px] bg-[#0f172a] border-r border-[#1e293b] transition-transform lg:translate-x-0 flex flex-col",
+          "fixed inset-y-0 left-0 z-40 w-[220px] bg-sidebar border-r border-border transition-transform lg:translate-x-0 flex flex-col",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-2 px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <TrendingUp className="h-5 w-5 text-primary-foreground" />
+        {/* Logo + Botão fechar (mobile) */}
+        <div className="flex h-16 items-center justify-between px-4 lg:px-5">
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+              <TrendingUp className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="text-lg font-semibold text-foreground">
+              LifeTrack
+            </span>
           </div>
-          <span className="text-lg font-semibold text-foreground">
-            LifeTrack
-          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-9 w-9 text-muted-foreground hover:text-foreground"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Fechar menu"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Main Navigation */}
         <nav className="flex-1 px-3 py-4">
           <p className="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-            Personal Management
+            {t.personalManagement}
           </p>
           <ul className="flex flex-col gap-1">
-            {mainNavigation.map((item) => {
+            {mainNavKeys.map((item) => {
               const isActive =
                 item.href === "/dashboard"
                   ? pathname === "/dashboard"
                   : pathname.startsWith(item.href);
               return (
-                <li key={item.name}>
+                <li key={item.key}>
                   <Link
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
@@ -103,11 +120,11 @@ export function Sidebar() {
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                       isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-[#1e293b] hover:text-foreground"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                   >
                     <item.icon className="h-5 w-5" />
-                    {item.name}
+                    {t[item.key]}
                   </Link>
                 </li>
               );
@@ -115,13 +132,13 @@ export function Sidebar() {
           </ul>
 
           <p className="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider mt-6 mb-3">
-            Settings
+            {t.settings}
           </p>
           <ul className="flex flex-col gap-1">
-            {settingsNavigation.map((item) => {
+            {settingsNavKeys.map((item) => {
               const isActive = pathname.startsWith(item.href);
               return (
-                <li key={item.name}>
+                <li key={item.key}>
                   <Link
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
@@ -129,11 +146,11 @@ export function Sidebar() {
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                       isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-[#1e293b] hover:text-foreground"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                   >
                     <item.icon className="h-5 w-5" />
-                    {item.name}
+                    {t[item.key]}
                   </Link>
                 </li>
               );
@@ -142,7 +159,7 @@ export function Sidebar() {
         </nav>
 
         {/* User Profile */}
-        <div className="border-t border-[#1e293b] p-3">
+        <div className="border-t border-border p-3">
           <div className="flex items-center gap-3 px-2 py-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
               {user?.name?.charAt(0) || ""}

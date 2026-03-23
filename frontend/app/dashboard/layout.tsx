@@ -17,11 +17,11 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
   }, [router]);
   
   return (
-    <div className="flex min-h-screen bg-[#0a0e1a]">
+    <div className="flex min-h-screen bg-background overflow-x-hidden">
       <Sidebar />
-      <div className="flex flex-1 flex-col lg:ml-[220px]">
+      <div className="flex flex-1 flex-col lg:ml-[220px] min-w-0">
         <Header />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

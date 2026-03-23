@@ -49,8 +49,7 @@ export class TransactionsService {
   }
 
   async update(id: string, updateTransactionDto: UpdateTransactionDto, userId: string) {
-    
-    this.findOne(id, userId)
+    await this.findOne(id, userId);
 
     return this.prisma.transaction.update({
       where:{ id },
@@ -61,8 +60,8 @@ export class TransactionsService {
     })
   }
 
-  async remove(id: string, userId: string ) {
-    this.findOne(id, userId)
+  async remove(id: string, userId: string) {
+    await this.findOne(id, userId);
 
     return this.prisma.transaction.delete({
       where: { id }

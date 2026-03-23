@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/components/language-provider";
+import { translations } from "@/lib/i18n";
 import {
   TrendingUp,
   Plus,
@@ -63,24 +65,26 @@ function HabitsBlock({
   totalHabits,
   onToggle,
 }: HabitsBlockProps) {
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
   return (
-    <Card className="bg-[#111827] border-[#1e293b]">
+    <Card className="bg-card border-border">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle className="text-foreground text-lg">
-            Hábitos diários
+            {t.habitsTitle}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            {completedHabits}/{totalHabits} Concluído
+            {completedHabits}/{totalHabits} {t.completed}
           </p>
         </div>
-        <Badge variant="secondary" className="bg-[#1e293b] text-foreground">
+        <Badge variant="secondary" className="bg-secondary text-foreground">
           {completedHabits}/{totalHabits}
         </Badge>
       </CardHeader>
       <CardContent>
         <div className="mb-4">
-          <div className="h-2 w-full bg-[#1e293b] rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
             <div
               className="h-full bg-primary rounded-full transition-all"
               style={{
@@ -95,7 +99,7 @@ function HabitsBlock({
           </div>
         ) : habits.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Nenhum hábito ainda.
+            {t.noHabits}
           </p>
         ) : (
           <div className="flex flex-col gap-3">
@@ -105,7 +109,7 @@ function HabitsBlock({
                 <button
                   key={habit.id}
                   onClick={() => onToggle(habit.id)}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1e293b] transition-colors text-left w-full"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary transition-colors text-left w-full"
                 >
                   <div
                     className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-colors flex-shrink-0 ${
@@ -120,7 +124,7 @@ function HabitsBlock({
                     className={`flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 ${
                       habit.isCheckedToday
                         ? "bg-primary/20 text-primary"
-                        : "bg-[#1e293b] text-muted-foreground"
+                        : "bg-secondary text-muted-foreground"
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -147,10 +151,10 @@ function HabitsBlock({
         <Link href="/dashboard/habits">
           <Button
             variant="ghost"
-            className="w-full mt-4 border border-dashed border-[#334155] text-muted-foreground hover:text-foreground hover:bg-[#1e293b]"
+            className="w-full mt-4 border border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Gerenciar hábitos
+            {t.manageHabits}
           </Button>
         </Link>
       </CardContent>
@@ -161,6 +165,8 @@ function HabitsBlock({
 // ─── DashboardPage ────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
   const [summary, setSummary] = useState<TransactionSummary | null>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -238,10 +244,10 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">
-          Bem-vindo, {user?.name?.split(" ")[0] || ""}!
+          {t.welcome}, {user?.name?.split(" ")[0] || ""}!
         </h1>
         <p className="text-muted-foreground">
-          Veja o que está acontecendo com seus objetivos hoje.
+          {t.subtitle}
         </p>
       </div>
 
@@ -272,7 +278,7 @@ export default function DashboardPage() {
         {/* Coluna esquerda */}
         <div className="flex flex-col gap-6 min-w-0">
           <BalanceCard summary={summary} isLoading={isLoading} />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <WeeklyChart data={weeklySpending} formatCurrency={formatCurrency} />
             <CategoriesChart transactions={allTransactions} />
           </div>
@@ -311,10 +317,12 @@ function BalanceCard({
   isLoading: boolean;
   mobile?: boolean;
 }) {
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
   return (
     <Card className="bg-gradient-to-r from-[#3b82f6] via-[#6366f1] to-[#8b5cf6] border-0">
       <CardContent className="p-5">
-        <p className="text-sm text-white/80 mb-1">Saldo Total</p>
+        <p className="text-sm text-white/80 mb-1">{t.totalBalance}</p>
         <p className="text-3xl font-bold text-white mb-1">
           {isLoading ? "—" : formatCurrency(summary?.balance ?? 0)}
         </p>
@@ -325,10 +333,10 @@ function BalanceCard({
         >
           <span className="flex items-center gap-1">
             <TrendingUp className="h-3.5 w-3.5" />
-            Receitas: {formatCurrency(summary?.totalIncome ?? 0)}
+            {t.income}: {formatCurrency(summary?.totalIncome ?? 0)}
           </span>
           {!mobile && <span>·</span>}
-          <span>Despesas: {formatCurrency(summary?.totalExpense ?? 0)}</span>
+          <span>{t.expenses}: {formatCurrency(summary?.totalExpense ?? 0)}</span>
         </div>
       </CardContent>
     </Card>
@@ -342,15 +350,17 @@ function WeeklyChart({
   data: { day: string; value: number }[];
   formatCurrency: (v: number) => string;
 }) {
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
   return (
-    <Card className="bg-[#111827] border-[#1e293b]">
+    <Card className="bg-card border-border">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle className="text-foreground text-lg">Gastos semanais</CardTitle>
-          <p className="text-sm text-muted-foreground">Esta semana</p>
+          <CardTitle className="text-foreground text-lg">{t.weeklySpending}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t.thisWeek}</p>
         </div>
-        <Badge variant="secondary" className="bg-[#1e293b] text-foreground">
-          7 dias
+        <Badge variant="secondary" className="bg-secondary text-foreground">
+          {t.sevenDays}
         </Badge>
       </CardHeader>
       <CardContent>
@@ -362,7 +372,7 @@ function WeeklyChart({
               <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${v}`} />
               <Tooltip
                 contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px", color: "#f8fafc" }}
-                formatter={(v: number) => [formatCurrency(v), "Gasto"]}
+                formatter={(v: number) => [formatCurrency(v), t.spent]}
               />
               <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -374,6 +384,8 @@ function WeeklyChart({
 }
 
 function CategoriesChart({ transactions }: { transactions: Transaction[] }) {
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
   const [categories, setCategories] = useState<TransactionCategory[]>([]);
  
   useEffect(() => {
@@ -420,23 +432,23 @@ function CategoriesChart({ transactions }: { transactions: Transaction[] }) {
  
     if (total === 0) {
       return [
-        { name: "Receitas", value: 50, color: "#22c55e" },
-        { name: "Despesas", value: 50, color: "#ef4444" },
+        { name: t.income, value: 50, color: "#22c55e" },
+        { name: t.expenses, value: 50, color: "#ef4444" },
       ];
     }
- 
+
     return [
-      { name: "Receitas", value: Math.round((income / total) * 100), color: "#22c55e" },
-      { name: "Despesas", value: Math.round((expense / total) * 100), color: "#ef4444" },
+      { name: t.income, value: Math.round((income / total) * 100), color: "#22c55e" },
+      { name: t.expenses, value: Math.round((expense / total) * 100), color: "#ef4444" },
     ];
   })();
  
   return (
-    <Card className="bg-[#111827] border-[#1e293b]">
+    <Card className="bg-card border-border">
       <CardHeader className="pb-2">
-        <CardTitle className="text-foreground text-lg">Distribuição</CardTitle>
+        <CardTitle className="text-foreground text-lg">{t.distribution}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          {categories.length > 0 ? "Por categoria de despesa" : "Receitas vs Despesas"}
+          {categories.length > 0 ? t.byExpenseCategory : t.incomeVsExpenses}
         </p>
       </CardHeader>
       <CardContent>
@@ -487,6 +499,8 @@ function HabitCompletionChart({
   filter: 'weekly' | 'monthly';
   setFilter: (f: 'weekly' | 'monthly') => void;
 }) {
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
   const [data, setData] = useState<{ label: string; value: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
  
@@ -499,19 +513,19 @@ function HabitCompletionChart({
   }, [filter]);
  
   return (
-    <Card className="bg-[#111827] border-[#1e293b]">
+    <Card className="bg-card border-border">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle className="text-foreground text-lg">
-            Taxa de conclusão de hábitos
+            {t.habitCompletionRate}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             {filter === 'weekly'
-              ? '% de hábitos concluídos — últimos 7 dias'
-              : '% de hábitos concluídos — últimos 12 meses'}
+              ? t.habitCompletion7Days
+              : t.habitCompletion12Months}
           </p>
         </div>
-        <div className="flex items-center gap-1 bg-[#1e293b] rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
           <button
             onClick={() => setFilter('weekly')}
             className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
@@ -520,7 +534,7 @@ function HabitCompletionChart({
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            Semanal
+            {t.weekly}
           </button>
           <button
             onClick={() => setFilter('monthly')}
@@ -530,7 +544,7 @@ function HabitCompletionChart({
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            Mensal
+            {t.monthly}
           </button>
         </div>
       </CardHeader>
@@ -541,7 +555,7 @@ function HabitCompletionChart({
           </div>
         ) : data.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-12">
-            Nenhum dado de hábitos ainda.
+            {t.noHabitData}
           </p>
         ) : (
           <div className="h-[250px]">
@@ -552,7 +566,7 @@ function HabitCompletionChart({
                 <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc' }}
-                  formatter={(v: number) => [`${v}%`, 'Conclusão']}
+                  formatter={(v: number) => [`${v}%`, t.completed]}
                 />
                 <Line
                   type="monotone"
@@ -578,12 +592,14 @@ function RecentTransactions({
   transactions: Transaction[];
   isLoading: boolean;
 }) {
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
   return (
-    <Card className="bg-[#111827] border-[#1e293b]">
+    <Card className="bg-card border-border">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <CardTitle className="text-foreground text-lg">Transações recentes</CardTitle>
+        <CardTitle className="text-foreground text-lg">{t.recentTransactions}</CardTitle>
         <Link href="/dashboard/finances" className="text-sm text-primary hover:underline">
-          Ver todas
+          {t.viewAll}
         </Link>
       </CardHeader>
       <CardContent>
@@ -592,7 +608,7 @@ function RecentTransactions({
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : transactions.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">Nenhuma transação ainda.</p>
+          <p className="text-sm text-muted-foreground text-center py-8">{t.noTransactions}</p>
         ) : (
           <div className="flex flex-col gap-4">
             {transactions.map((tx) => {

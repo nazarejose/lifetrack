@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { LanguageProvider } from '@/components/language-provider'
+import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -31,11 +32,13 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
+          themes={["dark", "light"]}
           enableSystem={false}
           storageKey="theme"
         >
           <LanguageProvider>
             {children}
+            <Toaster richColors position="bottom-right" />
           </LanguageProvider>
         </ThemeProvider>
         <Analytics />

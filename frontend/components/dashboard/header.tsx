@@ -6,27 +6,32 @@ import { api } from "@/lib/api";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User } from "@/lib/types";
+import { useLanguage } from "@/components/language-provider";
+import { translations } from "@/lib/i18n";
 
-const pageTitles: Record<string, string> = {
-  "/dashboard": "",
-  "/dashboard/finances": "Finances",
-  "/dashboard/habits": "Habits",
-  "/dashboard/goals": "Goals",
-  "/dashboard/settings": "Settings",
+const pathToTitleKey: Record<string, keyof (typeof translations.pt.nav)> = {
+  "/dashboard": "overview",
+  "/dashboard/finances": "finances",
+  "/dashboard/habits": "habits",
+  "/dashboard/goals": "goals",
+  "/dashboard/settings": "settings",
 };
 
 export function Header() {
   const pathname = usePathname();
+  const { language } = useLanguage();
+  const t = translations[language].nav;
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     setUser(api.getUser());
   }, []);
 
-  const pageTitle = pageTitles[pathname] || "";
+  const titleKey = pathToTitleKey[pathname];
+  const pageTitle = pathname === "/dashboard" ? "" : (titleKey ? t[titleKey] : "");
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#1e293b] bg-[#0a0e1a]/95 backdrop-blur px-6">
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/95 backdrop-blur px-6">
       <div className="flex items-center gap-3 lg:ml-0 ml-12">
         <FileText className="h-5 w-5 text-muted-foreground" />
         {pageTitle && (
@@ -42,8 +47,8 @@ export function Header() {
           size="icon"
           className="relative text-muted-foreground hover:text-foreground"
         >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-primary" />
+          {/* <Bell className="h-5 w-5" />
+          <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-primary" /> */}
         </Button>
 
         <div className="flex items-center gap-2">
