@@ -42,14 +42,14 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
+        {/* <Button
           variant="ghost"
           size="icon"
           className="relative text-muted-foreground hover:text-foreground"
         >
-          {/* <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-primary" /> */}
-        </Button>
+          <Bell className="h-5 w-5" />
+          <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-primary" />
+        </Button> */}
 
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
