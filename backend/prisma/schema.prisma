@@ -37,7 +37,7 @@ model Habit {
   createdAt   DateTime @default(now())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   logs   HabitLog[]
   goals  Goal[]
 
@@ -66,7 +66,7 @@ model Transaction {
   transactionType TransactionType
   date            DateTime
   userId          String
-  user            User                 @relation(fields: [userId], references: [id])
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   categoryId      String?
   category        TransactionCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -106,10 +106,10 @@ model Goal {
   category     String
   status       GoalStatus @default(ON_TRACK)
   userId       String
-  user         User       @relation(fields: [userId], references: [id])
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  habitId      String?           // ← novo campo opcional
-  habit        Habit?   @relation(fields: [habitId], references: [id])
+  habitId      String?
+  habit        Habit?   @relation(fields: [habitId], references: [id], onDelete: SetNull)
 
   createdAt    DateTime @default(now())
   @@map("goals")
